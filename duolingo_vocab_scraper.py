@@ -80,17 +80,17 @@ async def click_more_if_possible(page) -> bool:
 
     # 2) Try common button text variants (case‑sensitive CSS :has-text).
     selector_variants = [
+        "button:has-text('Load more')",
         "button:has-text('More')",
         "button:has-text('more')",
         "button:has-text('Show more')",
-        "button:has-text('Load more')",
         "button:has-text('See more')",
     ]
     for sel in selector_variants:
         loc = page.locator(sel).first
         try:
             if await loc.is_visible():
-                print(f"Clicking 'More' via selector: {sel}")
+                print(f"Clicking 'Load more' via selector: {sel}")
                 await loc.click()
                 await page.wait_for_timeout(200)
                 return True
@@ -102,14 +102,14 @@ async def click_more_if_possible(page) -> bool:
         words_section = page.locator("section", has=page.locator("ul li h3")).first
         text_more = words_section.get_by_text(re.compile("more", re.IGNORECASE))
         if await text_more.count() > 0 and await text_more.first.is_visible():
-            print("Clicking 'More' via generic text match inside words section.")
+            print("Clicking 'Load more' via generic text match inside words section.")
             await text_more.first.click()
             await page.wait_for_timeout(200)
             return True
     except Exception:
         pass
 
-    print("No 'More' control found on the page.")
+    print("No 'Load more' control found on the page.")
     return False
 
 
@@ -119,7 +119,7 @@ async def main() -> None:
     async with async_playwright() as p:
         browser = await p.chromium.connect_over_cdp(CDP_ENDPOINT)
 
-        # Reuse the first existing context if available (your Brave profile)
+        # Reuse the first existing context if available
         if browser.contexts:
             context = browser.contexts[0]
         else:
@@ -141,7 +141,7 @@ async def main() -> None:
             await page.wait_for_selector("section ul li h3", timeout=20_000)
         except PlaywrightTimeoutError:
             raise SystemExit(
-                "Couldn't find the word list. Make sure you're logged into Duolingo in the Brave CDP window "
+                "Couldn't find the word list. Make sure you're logged into Duolingo in the Chromium CDP window "
                 "and that the Words page is fully loaded."
             )
 
